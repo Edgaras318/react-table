@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { useTable } from "react-table";
+import { useTable, usePagination } from "react-table";
 import MOCK_DATA from "./MOCK_DATA.json";
 import { COLUMNS } from "./columns";
 import "./table.css";
 
-const BasicTable = () => {
+const PaginationTable = () => {
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => MOCK_DATA, []);
 
@@ -12,16 +12,22 @@ const BasicTable = () => {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    footerGroups,
-    rows,
+    page,
+    nextPage,
+    previousPage,
+    canNextPage,
+    canPreviousPage,
     prepareRow,
-  } = useTable({
-    columns: columns,
-    data: data,
-  });
+  } = useTable(
+    {
+      columns: columns,
+      data: data,
+    },
+    usePagination
+  );
 
   return (
-    <div>
+    <>
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup, index) => (
@@ -35,7 +41,7 @@ const BasicTable = () => {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map((row, index) => {
+          {page.map((row, index) => {
             prepareRow(row);
             return (
               <tr key={index} {...row.getRowProps()}>
@@ -50,21 +56,17 @@ const BasicTable = () => {
             );
           })}
         </tbody>
-
-        <tfoot>
-          {footerGroups.map((footerGroup, index) => (
-            <tr key={index} {...footerGroup.getFooterGroupProps()}>
-              {footerGroup.headers.map((column, index) => (
-                <td key={index} {...column.getFooterProps()}>
-                  {column.render("Footer")}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
       </table>
-    </div>
+      <div>
+        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          Previous
+        </button>
+        <button onClick={() => nextPage()} disabled={!canNextPage}>
+          Next
+        </button>
+      </div>
+    </>
   );
 };
 
-export default BasicTable;
+export default PaginationTable;
